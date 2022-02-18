@@ -18,8 +18,6 @@ RSpec.describe Menu, type: :model do
         menu = build(:menu)
         menu.send("#{required_field}=", '')
 
-      puts menu.errors.inspect
-
         expect(menu).not_to be_valid
         expect(menu.errors).to have_key(required_field)
       end
@@ -27,8 +25,6 @@ RSpec.describe Menu, type: :model do
       it "is invalid if #{required_field} is set to nil" do
         menu = build(:menu)
         menu.send("#{required_field}=", nil)
-
-      puts menu.errors.inspect
 
         expect(menu).not_to be_valid
         expect(menu.errors).to have_key(required_field)
