@@ -31,4 +31,11 @@ RSpec.describe Menu, type: :model do
       end
     end
   end
+
+  describe '#associations' do
+    it 'has many menu_items' do
+      association_to_menu_items = Menu.reflect_on_association(:menu_items)
+      expect(association_to_menu_items.macro).to eq(:has_many)
+    end
+  end
 end
