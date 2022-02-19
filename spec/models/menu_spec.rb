@@ -10,7 +10,7 @@ RSpec.describe Menu, type: :model do
     end
 
     [ #required field
-      :restaurant_name,
+      :restaurant_id,
       :status,
       :title,
     ].each do |required_field|
@@ -33,6 +33,11 @@ RSpec.describe Menu, type: :model do
   end
 
   describe '#associations' do
+    it 'belongs to restaurant' do
+      association_to_restaurant = Menu.reflect_on_association(:restaurant)
+      expect(association_to_restaurant.macro).to eq(:belongs_to)
+    end
+
     it 'has many menu_items' do
       association_to_menu_items = Menu.reflect_on_association(:menu_items)
       expect(association_to_menu_items.macro).to eq(:has_many)
