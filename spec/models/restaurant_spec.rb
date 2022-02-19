@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Restaurant, type: :model do
-  describe '#validations' do
+  describe '#validate' do
     it 'is valid if required fields are present' do
       restaurant = build(:restaurant)
 
@@ -37,7 +37,7 @@ RSpec.describe Restaurant, type: :model do
     end
   end
 
-  describe '#associations' do
+  context 'associations' do
     it 'has many menus' do
       association_to_menus = Restaurant.reflect_on_association(:menus)
       expect(association_to_menus.macro).to eq(:has_many)
