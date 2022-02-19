@@ -11,7 +11,6 @@ RSpec.describe MenuItem, type: :model do
 
     [ #required field
       :price,
-      :restaurant_id,
       :status,
       :title,
     ].each do |required_field|
@@ -31,43 +30,12 @@ RSpec.describe MenuItem, type: :model do
         expect(menu_item.errors).to have_key(required_field)
       end
     end
-
-    context 'with same title as an existing MenuItem' do
-      let(:existing_menu_item) { FactoryBot.create(:menu_item, title: 'Example') }
-
-      context 'that shares the same restaurant' do
-        it 'is not valid' do
-          menu_item = build(:menu_item,
-                             title: 'Example',
-                             restaurant: existing_menu_item.restaurant)
-
-          expect(menu_item).not_to be_valid
-          expect(menu_item.errors).to have_key(:title)
-        end
-      end
-
-      context 'that does not share the same restaurant' do
-        it 'is valid' do
-          menu_item = build(:menu_item,
-                             title: 'Example',
-                             restaurant: FactoryBot.create(:restaurant))
-
-          expect(menu_item).to be_valid
-          expect(menu_item.errors).to be_empty
-        end
-      end
-    end
   end
 
   context 'associations' do
-    it 'has_many menus' do
-      association_to_menus = MenuItem.reflect_on_association(:menus)
-      expect(association_to_menus.macro).to eq(:has_many)
-    end
-
-    it 'belongs to restaurant' do
-      association_to_restaurant = MenuItem.reflect_on_association(:restaurant)
-      expect(association_to_restaurant.macro).to eq(:belongs_to)
+    it 'belongs to menu' do
+      association_to_menu = MenuItem.reflect_on_association(:menus)
+      expect(association_to_menu.macro).to eq(:has_many)
     end
   end
 end
