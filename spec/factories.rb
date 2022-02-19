@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory(:menu) do
-    restaurant      { create(:restaurant) }
-    status          { 0 }
-    title           { Faker::Food.ethnic_category }
+    restaurant { create(:restaurant) }
+    status     { 0 }
+    title      { Faker::Food.ethnic_category }
 
     trait :with_menu_items do
       defaults do
@@ -19,11 +19,12 @@ FactoryBot.define do
   end
 
   factory(:menu_assignment) do
-    menu { create(:menu) }
+    menu      { create(:menu) }
     menu_item { create(:menu_item) }
   end
 
   factory(:menu_item) do
+    restaurant  { create(:restaurant) }
     description { Faker::Food.description }
     price       { Faker::Commerce.price }
     status      { 0 }
@@ -37,7 +38,7 @@ FactoryBot.define do
 
       after(:build) do |menu_item, evaluator|
         evaluator.number_of_menus.times do
-          menu_item.menus << FactoryGirl.create(:menu)
+          menu_item.menus << FactoryGirl.create(:menu, restaurant: menu_item.restaurant)
         end
       end
     end
