@@ -70,4 +70,42 @@ RSpec.describe MenuItem, type: :model do
       expect(association_to_restaurant.macro).to eq(:belongs_to)
     end
   end
+
+  context 'behavior' do
+    context 'when associated with a single menu' do
+      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items, number_of_menu_items: 3) }
+      let(:menu2)       { FactoryBot.create(:menu, restaurant: menu1.restaurant) }
+      let!(:menu_item1) { menu1.menu_items.first }
+
+      it 'can be added to another menu' do
+        expect(menu_item1.menus.count).to eq(1)
+
+        menu2.menu_items << menu_item1
+
+        expect(menu_item1.menus.count).to eq(2)
+        expect(menu1.menu_items).to include(menu_item1)
+        expect(menu2.menu_items).to include(menu_item1)
+      end
+    end
+
+    context 'when associated with multple menus' do
+      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items, number_of_menu_items: 3) }
+      let(:menu2)       { FactoryBot.create(:menu, restaurant: menu1.restaurant) }
+      let!(:menu_item1) { menu1.menu_items.first }
+
+      before do
+        menu2.menu_items << menu_item1
+      end
+
+      it 'can be removed from a menu' do
+        expect(menu_item1.menus.count).to eq(2)
+
+        menu2.menu_items.delete(menu_item1)
+
+        expect(menu_item1.menus.count).to eq(1)
+        expect(menu1.menu_items).to include(menu_item1)
+        expect(menu2.menu_items).not_to include(menu_item1)
+      end
+    end
+  end
 end
