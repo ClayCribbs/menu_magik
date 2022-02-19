@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe MenuItem, type: :model do
-  describe '#validations' do
+  describe '#validate' do
     it 'is valid if required fields are present' do
       menu_item = build(:menu_item)
 
@@ -10,7 +10,6 @@ RSpec.describe MenuItem, type: :model do
     end
 
     [ #required field
-      :menu_id,
       :price,
       :status,
       :title,
@@ -33,10 +32,10 @@ RSpec.describe MenuItem, type: :model do
     end
   end
 
-  describe '#associations' do
+  context '#associations' do
     it 'belongs to menu' do
-      association_to_menu = MenuItem.reflect_on_association(:menu)
-      expect(association_to_menu.macro).to eq(:belongs_to)
+      association_to_menu = MenuItem.reflect_on_association(:menus)
+      expect(association_to_menu.macro).to eq(:has_many)
     end
   end
 end

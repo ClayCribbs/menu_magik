@@ -1,5 +1,5 @@
 class MenuItem < ApplicationRecord
-  belongs_to :menu
+  has_many :menus, through: :menu_assignments
 
-  validates_presence_of :menu_id, :title, :price, :status
+  validates_presence_of :title, :price, :status
 end

@@ -6,8 +6,12 @@ FactoryBot.define do
     title           { Faker::Food.ethnic_category }
   end
 
+  factory(:menu_assignment) do
+    menu
+    menu_item
+  end
+
   factory(:menu_item) do
-    menu        { create(:menu) }
     description { Faker::Food.description }
     price       { Faker::Commerce.price }
     status      { 0 }
