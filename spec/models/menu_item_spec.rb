@@ -11,9 +11,9 @@ RSpec.describe MenuItem, type: :model do
 
     [ #required field
       :menu_id,
-      :title,
       :price,
-      :status
+      :status,
+      :title,
     ].each do |required_field|
       it "is invalid if #{required_field} is not present" do
         menu_item = build(:menu_item)
