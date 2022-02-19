@@ -32,7 +32,7 @@ RSpec.describe Menu, type: :model do
     end
   end
 
-  context '#associations' do
+  context 'associations' do
     it 'belongs to restaurant' do
       association_to_restaurant = Menu.reflect_on_association(:restaurant)
       expect(association_to_restaurant.macro).to eq(:belongs_to)

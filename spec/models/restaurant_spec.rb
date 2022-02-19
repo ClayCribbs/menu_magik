@@ -37,7 +37,7 @@ RSpec.describe Restaurant, type: :model do
     end
   end
 
-  context '#associations' do
+  context 'associations' do
     it 'has many menus' do
       association_to_menus = Restaurant.reflect_on_association(:menus)
       expect(association_to_menus.macro).to eq(:has_many)
