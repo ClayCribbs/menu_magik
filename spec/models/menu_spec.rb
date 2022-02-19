@@ -10,9 +10,9 @@ RSpec.describe Menu, type: :model do
     end
 
     [ #required field
-      :title,
       :restaurant_name,
-      :status
+      :status,
+      :title,
     ].each do |required_field|
       it "is invalid if #{required_field} is not present" do
         menu = build(:menu)

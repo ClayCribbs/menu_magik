@@ -10,14 +10,14 @@ RSpec.describe Restaurant, type: :model do
     end
 
     [ #required field
-      :name,
-      :street_address,
       :city,
-      :region,
       :country,
-      :postal_code,
+      :name,
       :phone_number,
+      :postal_code,
+      :region,
       :status,
+      :street_address,
     ].each do |required_field|
       it "is invalid if #{required_field} is not present" do
         restaurant = build(:restaurant)
