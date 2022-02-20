@@ -76,4 +76,10 @@ FactoryBot.define do
       end
     end
   end
+
+  factory(:menu_item_variation) do
+    child_item       { create(:menu_item) }
+    parent_item      { create(:menu_item) }
+    price_adjustment { 0 }
+  end
 end
