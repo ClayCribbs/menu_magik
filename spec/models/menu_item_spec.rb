@@ -9,7 +9,7 @@ RSpec.describe MenuItem, type: :model do
                                                 :title,
                                               ]
 
-    context 'with same title as an existing MenuItem' do
+    context 'with existing menu_item that has the same title' do
       let(:existing_menu_item) { FactoryBot.create(:menu_item, title: 'Example') }
 
       context 'that shares the same restaurant' do
