@@ -36,7 +36,7 @@ RSpec.describe MenuItem, type: :model do
     end
   end
 
-  context '#restaurant' do
+  describe '#restaurant' do
     it 'belongs to restaurant' do
       association_to_restaurant = MenuItem.reflect_on_association(:restaurant)
       expect(association_to_restaurant.macro).to eq(:belongs_to)
@@ -99,7 +99,7 @@ RSpec.describe MenuItem, type: :model do
     end
   end
 
-  context '#menus' do
+  describe '#menus' do
     it 'has_many menus' do
       association_to_menus = MenuItem.reflect_on_association(:menus)
       expect(association_to_menus.macro).to eq(:has_many)
@@ -143,6 +143,28 @@ RSpec.describe MenuItem, type: :model do
           expect(menu2.menu_items).not_to include(menu_item1)
         end
       end
+    end
+  end
+
+  describe '#create_child' do
+    let!(:menu_item_parent) { FactoryBot.create(:menu_item) }
+
+    it 'increases children.count by 1' do
+      expect {
+        menu_item_parent.create_child(title: 'Side Portion')
+      }.to change { menu_item_parent.children.count }.by(1)
+    end
+
+    it 'creates a new menu_item' do
+      expect {
+        menu_item_parent.create_child(title: 'Side Portion')
+      }.to change { MenuItem.count }.by(1)
+    end
+
+    it 'creates a new menu_item variation' do
+      expect {
+        menu_item_parent.create_child(title: 'Side Portion')
+      }.to change { MenuItemVariation.count }.by(1)
     end
   end
 end

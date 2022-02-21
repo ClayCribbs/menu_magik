@@ -8,7 +8,7 @@ RSpec.describe MenuItemVariation, type: :model do
                                               ]
   end
 
-  context '#set_default_price_adjustment' do
+  describe '#set_default_price_adjustment' do
     let(:miv) { MenuItemVariation.new(parent_item: FactoryBot.create(:menu_item)) }
 
     before do
@@ -60,14 +60,14 @@ RSpec.describe MenuItemVariation, type: :model do
     end
   end
 
-  context '#parents' do
+  describe '#parents' do
     it 'has many parents' do
       association_to_parents = MenuItem.reflect_on_association(:parents)
       expect(association_to_parents.macro).to eq(:has_many)
     end
   end
 
-  context '#children' do
+  describe '#children' do
     it 'has many children' do
       association_to_children = MenuItem.reflect_on_association(:children)
       expect(association_to_children.macro).to eq(:has_many)
