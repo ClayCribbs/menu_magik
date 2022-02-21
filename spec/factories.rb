@@ -71,15 +71,14 @@ FactoryBot.define do
         number_of_menus { 1 }
       end
 
-     after(:create) do |restaurant|
+      after(:create) do |restaurant|
         restaurant.menus << FactoryBot.create(:menu, :with_menu_items, restaurant: restaurant)
       end
     end
   end
 
   factory(:menu_item_variation) do
-    child_item       { create(:menu_item) }
-    parent_item      { create(:menu_item) }
-    price_adjustment { 0 }
+    child_item  { create(:menu_item) }
+    parent_item { create(:menu_item) }
   end
 end

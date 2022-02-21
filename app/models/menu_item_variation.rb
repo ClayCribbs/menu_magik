@@ -7,6 +7,6 @@ class MenuItemVariation < ApplicationRecord
   before_validation :set_default_price_adjustment
 
   def set_default_price_adjustment
-    self.price_adjustment ||= child_item.price || 0
+    self.price_adjustment ||= child_item.try(:price) || 0
   end
 end

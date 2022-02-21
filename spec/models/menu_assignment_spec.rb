@@ -2,32 +2,10 @@ require 'rails_helper'
 
 RSpec.describe MenuAssignment, type: :model do
   describe '#validate' do
-    it 'is valid if required fields are present' do
-      menu_assignment = build(:menu_assignment)
-      expect(menu_assignment).to be_valid
-      expect(menu_assignment.errors).to be_empty
-    end
-
-    [ #required field
-      :menu_id,
-      :menu_item_id
-    ].each do |required_field|
-      it "is invalid if #{required_field} is not present" do
-        menu_assignment = build(:menu_assignment)
-        menu_assignment.send("#{required_field}=", '')
-
-        expect(menu_assignment).not_to be_valid
-        expect(menu_assignment.errors).to have_key(required_field)
-      end
-
-      it "is invalid if #{required_field} is set to nil" do
-        menu_assignment = build(:menu_assignment)
-        menu_assignment.send("#{required_field}=", nil)
-
-        expect(menu_assignment).not_to be_valid
-        expect(menu_assignment.errors).to have_key(required_field)
-      end
-    end
+    include_examples 'validates presence of', [ #required field
+                                                :menu_id,
+                                                :menu_item_id
+                                              ]
   end
 
   context '#menu' do
