@@ -8,6 +8,16 @@ RSpec.describe MenuItemVariation, type: :model do
                                               ]
   end
 
+  context 'associations' do
+    [  #model       #association
+      [:menu,        :belongs_to],
+      [:parent_item, :belongs_to],
+      [:child_item,  :belongs_to],
+    ].each do |model, association|
+      include_examples 'associates_with', model, association
+    end
+  end
+
   describe '#set_default_price_adjustment' do
     let(:miv) { MenuItemVariation.new(parent_item: FactoryBot.create(:menu_item)) }
 
@@ -57,34 +67,6 @@ RSpec.describe MenuItemVariation, type: :model do
           expect(miv.price_adjustment).to eq(6)
         end
       end
-    end
-  end
-
-  describe '#menu' do
-    it 'belongs_to menu' do
-      association_to_menu = MenuItemVariation.reflect_on_association(:menu)
-      expect(association_to_menu.macro).to eq(:belongs_to)
-    end
-
-    it 'is not required' do
-      menu_item_variation = FactoryBot.build(:menu_item_variation)
-      menu_item_variation.menu = nil
-      expect(menu_item_variation).to be_valid
-      expect(menu_item_variation.menu_id).to eq(nil)
-    end
-  end
-
-  describe '#parent_item' do
-    it 'belongs_to parent_item' do
-      association_to_parent_item = MenuItemVariation.reflect_on_association(:parent_item)
-      expect(association_to_parent_item.macro).to eq(:belongs_to)
-    end
-  end
-
-  describe '#child_item' do
-    it 'belongs to child_item' do
-      association_to_child_item = MenuItemVariation.reflect_on_association(:child_item)
-      expect(association_to_child_item.macro).to eq(:belongs_to)
     end
   end
 end

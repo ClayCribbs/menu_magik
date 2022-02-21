@@ -8,17 +8,12 @@ RSpec.describe MenuAssignment, type: :model do
                                               ]
   end
 
-  describe '#menu' do
-    it 'belongs to menu' do
-      association_to_menu = MenuAssignment.reflect_on_association(:menu)
-      expect(association_to_menu.macro).to eq(:belongs_to)
-    end
-  end
-
-  describe '#menu_item' do
-    it 'belongs to menu_item' do
-      association_to_menu_item = MenuAssignment.reflect_on_association(:menu_item)
-      expect(association_to_menu_item.macro).to eq(:belongs_to)
+  context 'associations' do
+    [  #model      #association
+      [:menu,      :belongs_to],
+      [:menu_item, :belongs_to],
+    ].each do |model, association|
+      include_examples 'associates_with', model, association
     end
   end
 end
