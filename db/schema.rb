@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_02_20_195936) do
+ActiveRecord::Schema[7.0].define(version: 2022_02_21_070729) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -27,7 +27,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_20_195936) do
     t.decimal "price_adjustment", precision: 8, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "menu_id"
     t.index ["child_item_id"], name: "index_menu_item_variations_on_child_item_id"
+    t.index ["menu_id"], name: "index_menu_item_variations_on_menu_id"
     t.index ["parent_item_id"], name: "index_menu_item_variations_on_parent_item_id"
   end
 
@@ -67,6 +69,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_20_195936) do
 
   add_foreign_key "menu_item_variations", "menu_items", column: "child_item_id"
   add_foreign_key "menu_item_variations", "menu_items", column: "parent_item_id"
+  add_foreign_key "menu_item_variations", "menus"
   add_foreign_key "menu_items", "restaurants"
   add_foreign_key "menus", "restaurants"
 end

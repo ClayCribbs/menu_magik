@@ -1,6 +1,7 @@
 class MenuItemVariation < ApplicationRecord
   belongs_to :parent_item, class_name: 'MenuItem'
   belongs_to :child_item,  class_name: 'MenuItem'
+  belongs_to :menu, optional: true
 
   validates_presence_of :parent_item_id, :child_item_id, :price_adjustment
 
