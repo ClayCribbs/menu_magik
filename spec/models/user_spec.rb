@@ -13,4 +13,12 @@ RSpec.describe User, type: :model do
                                                 :street_address,
                                               ]
   end
+
+  context 'associations' do
+    [  #model   #association
+      [:orders, :has_many],
+    ].each do |model, association|
+      include_examples 'associates_with', model, association
+    end
+  end
 end

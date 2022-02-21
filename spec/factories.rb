@@ -42,6 +42,16 @@ FactoryBot.define do
     end
   end
 
+  factory(:menu_item_variation) do
+    child_item  { create(:menu_item) }
+    parent_item { create(:menu_item) }
+  end
+
+  factory(:order) do
+    user   { create(:user) }
+    status { 0 }
+  end
+
   factory(:restaurant) do
     city           { Faker::Address.city }
     country        { Faker::Address.country }
@@ -73,12 +83,7 @@ FactoryBot.define do
     end
   end
 
-  factory(:menu_item_variation) do
-    child_item  { create(:menu_item) }
-    parent_item { create(:menu_item) }
-  end
-
- factory(:user) do
+  factory(:user) do
     city           { Faker::Address.city }
     country        { Faker::Address.country }
     name           { Faker::Name.name }
