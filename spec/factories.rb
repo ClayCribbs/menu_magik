@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory(:menu) do
-    restaurant  { create(:restaurant) }
+    restaurant { create(:restaurant) }
     status     { 0 }
     title      { Faker::Food.ethnic_category }
 
