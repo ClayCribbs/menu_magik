@@ -77,4 +77,15 @@ FactoryBot.define do
     child_item  { create(:menu_item) }
     parent_item { create(:menu_item) }
   end
+
+ factory(:user) do
+    city           { Faker::Address.city }
+    country        { Faker::Address.country }
+    name           { Faker::Name.name }
+    phone_number   { Faker::PhoneNumber.phone_number }
+    postal_code    { Faker::Address.zip_code }
+    region         { Faker::Address.state }
+    status         { 0 }
+    street_address { Faker::Address.street_address }
+  end
 end
