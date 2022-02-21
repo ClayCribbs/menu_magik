@@ -9,12 +9,17 @@ RSpec.describe Menu, type: :model do
                                               ]
   end
 
-  context 'associations' do
-    [  #model       #association
-      [:restaurant, :belongs_to],
-      [:menu_items, :has_many],
-    ].each do |model, association|
-      include_examples 'associates_with', model, association
+  describe '#restaurant' do
+    it 'belongs to restaurant' do
+      association_to_restaurant = Menu.reflect_on_association(:restaurant)
+      expect(association_to_restaurant.macro).to eq(:belongs_to)
+    end
+  end
+
+  describe '#menu_items' do
+    it 'has many menu_items' do
+      association_to_menu_items = Menu.reflect_on_association(:menu_items)
+      expect(association_to_menu_items.macro).to eq(:has_many)
     end
   end
 end
