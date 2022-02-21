@@ -60,17 +60,31 @@ RSpec.describe MenuItemVariation, type: :model do
     end
   end
 
-  describe '#parents' do
-    it 'has many parents' do
-      association_to_parents = MenuItem.reflect_on_association(:parents)
-      expect(association_to_parents.macro).to eq(:has_many)
+  describe '#menu' do
+    it 'belongs_to menu' do
+      association_to_menu = MenuItemVariation.reflect_on_association(:menu)
+      expect(association_to_menu.macro).to eq(:belongs_to)
+    end
+
+    it 'is not required' do
+      menu_item_variation = FactoryBot.build(:menu_item_variation)
+      menu_item_variation.menu = nil
+      expect(menu_item_variation).to be_valid
+      expect(menu_item_variation.menu_id).to eq(nil)
     end
   end
 
-  describe '#children' do
-    it 'has many children' do
-      association_to_children = MenuItem.reflect_on_association(:children)
-      expect(association_to_children.macro).to eq(:has_many)
+  describe '#parent_item' do
+    it 'belongs_to parent_item' do
+      association_to_parent_item = MenuItemVariation.reflect_on_association(:parent_item)
+      expect(association_to_parent_item.macro).to eq(:belongs_to)
+    end
+  end
+
+  describe '#child_item' do
+    it 'belongs to child_item' do
+      association_to_child_item = MenuItemVariation.reflect_on_association(:child_item)
+      expect(association_to_child_item.macro).to eq(:belongs_to)
     end
   end
 end
