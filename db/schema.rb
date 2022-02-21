@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_02_19_054258) do
+ActiveRecord::Schema[7.0].define(version: 2022_02_20_195936) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,9 +21,19 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_19_054258) do
     t.index ["menu_item_id", "menu_id"], name: "index_menu_assignments_on_menu_item_id_and_menu_id", unique: true
   end
 
+  create_table "menu_item_variations", force: :cascade do |t|
+    t.bigint "parent_item_id", null: false
+    t.bigint "child_item_id", null: false
+    t.decimal "price_adjustment", precision: 8, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_item_id"], name: "index_menu_item_variations_on_child_item_id"
+    t.index ["parent_item_id"], name: "index_menu_item_variations_on_parent_item_id"
+  end
+
   create_table "menu_items", force: :cascade do |t|
     t.text "description"
-    t.decimal "price", precision: 8, scale: 2
+    t.decimal "price", precision: 8, scale: 2, default: "0.0", null: false
     t.integer "status", default: 0, null: false
     t.string "title", null: false
     t.datetime "created_at", null: false
@@ -55,6 +65,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_19_054258) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "menu_item_variations", "menu_items", column: "child_item_id"
+  add_foreign_key "menu_item_variations", "menu_items", column: "parent_item_id"
   add_foreign_key "menu_items", "restaurants"
   add_foreign_key "menus", "restaurants"
 end
