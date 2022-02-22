@@ -9,8 +9,9 @@ RSpec.describe Order, type: :model do
   end
 
   context 'associations' do
-    [  #model #association
-      [:user, :belongs_to],
+    [  #model        #association
+      [:order_items, :has_many],
+      [:user,        :belongs_to],
     ].each do |model, association|
       include_examples 'associates_with', model, association
     end

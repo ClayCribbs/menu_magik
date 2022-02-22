@@ -43,62 +43,6 @@ RSpec.describe MenuItem, type: :model do
     end
   end
 
-  describe '#parents' do
-    let!(:menu_item_parent1) { FactoryBot.create(:menu_item) }
-    let!(:menu_item_parent2) { FactoryBot.create(:menu_item) }
-    let!(:menu_item_child)   { FactoryBot.create(:menu_item) }
-
-    it 'has_many parents' do
-      association_to_parents = MenuItem.reflect_on_association(:parents)
-      expect(association_to_parents.macro).to eq(:has_many)
-    end
-
-    context 'with one associated parent' do
-      before do
-        menu_item_parent1.children << menu_item_child
-        menu_item_parent1.save!
-      end
-
-      context 'when associating with a new parent' do
-        it 'persists its assocation to the original parent' do
-          expect(menu_item_child.parents.count).to eq(1)
-          expect(menu_item_child.parents).to include(menu_item_parent1)
-
-          menu_item_parent2.children << menu_item_child
-          menu_item_parent2.save!
-
-          expect(menu_item_child.parents.count).to eq(2)
-          expect(menu_item_child.parents).to include(menu_item_parent1)
-          expect(menu_item_child.parents).to include(menu_item_parent2)
-        end
-      end
-    end
-
-    context 'with multiple associated parents' do
-      before do
-        menu_item_parent1.children << menu_item_child
-        menu_item_parent2.children << menu_item_child
-        menu_item_parent1.save!
-        menu_item_parent2.save!
-      end
-
-      context 'when removing a parent' do
-        it 'persists its associations with other parents' do
-          expect(menu_item_child.parents.count).to eq(2)
-          expect(menu_item_child.parents).to include(menu_item_parent1)
-          expect(menu_item_child.parents).to include(menu_item_parent2)
-
-          menu_item_parent1.children.delete(menu_item_child)
-          menu_item_parent1.save!
-
-          expect(menu_item_child.parents.count).to eq(1)
-          expect(menu_item_child.parents).to include(menu_item_parent2)
-          expect(menu_item_child.parents).not_to include(menu_item_parent1)
-        end
-      end
-    end
-  end
-
   describe '#menus' do
     it 'has_many menus' do
       association_to_menus = MenuItem.reflect_on_association(:menus)
@@ -143,28 +87,6 @@ RSpec.describe MenuItem, type: :model do
           expect(menu2.menu_items).not_to include(menu_item1)
         end
       end
-    end
-  end
-
-  describe '#create_child' do
-    let!(:menu_item_parent) { FactoryBot.create(:menu_item) }
-
-    it 'increases children.count by 1' do
-      expect {
-        menu_item_parent.create_child(title: 'Side Portion')
-      }.to change { menu_item_parent.children.count }.by(1)
-    end
-
-    it 'creates a new menu_item' do
-      expect {
-        menu_item_parent.create_child(title: 'Side Portion')
-      }.to change { MenuItem.count }.by(1)
-    end
-
-    it 'creates a new menu_item variation' do
-      expect {
-        menu_item_parent.create_child(title: 'Side Portion')
-      }.to change { MenuItemVariation.count }.by(1)
     end
   end
 end

@@ -17,15 +17,10 @@ FactoryBot.define do
     end
   end
 
-  factory(:menu_assignment) do
-    menu      { create(:menu) }
-    menu_item { create(:menu_item) }
-  end
-
   factory(:menu_item) do
     restaurant  { create(:restaurant) }
     description { Faker::Food.description }
-    price       { Faker::Commerce.price }
+    price       { Faker::Number.between(from: 0.0, to: 30.0).round(2) }
     status      { 0 }
     title       { Faker::Food.dish }
 
@@ -42,14 +37,26 @@ FactoryBot.define do
     end
   end
 
-  factory(:menu_item_variation) do
-    child_item  { create(:menu_item) }
-    parent_item { create(:menu_item) }
+  factory(:menu_item_representation) do
+    menu             { create(:menu) }
+    menu_item        { create(:menu_item) }
+
+    trait :with_parent do
+      after(:build) do |mir|
+        mir.parent = create(:menu_item_representation)
+      end
+    end
   end
 
   factory(:order) do
-    user   { create(:user) }
-    status { 0 }
+    user       { create(:user) }
+    restaurant { create(:restaurant) }
+    status     { 0 }
+  end
+
+  factory(:order_item) do
+    order                    { create(:order) }
+    menu_item_representation { create(:menu_item_representation) }
   end
 
   factory(:restaurant) do
