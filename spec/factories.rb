@@ -6,8 +6,10 @@ FactoryBot.define do
 
     trait :with_menu_items do
       after(:create) do |menu, options|
-        menu.menu_items << FactoryBot.create(:menu_item,
-                                              restaurant: menu.restaurant)
+        2.times do
+          menu.menu_items << FactoryBot.create(:menu_item,
+                                                restaurant: menu.restaurant)
+        end
       end
     end
   end
@@ -19,7 +21,7 @@ FactoryBot.define do
     status      { 0 }
     title       { Faker::Food.dish }
 
-    trait :with_menus do
+    trait :with_menu do
       after(:create) do |menu_item, options|
         menu_item.menus << FactoryBot.create(:menu, restaurant: menu_item.restaurant)
       end

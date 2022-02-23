@@ -9,28 +9,36 @@ RSpec.describe MenuItem, type: :model do
                                                 :title,
                                               ]
 
-    context 'with existing menu_item that has the same title' do
-      let(:existing_menu_item) { FactoryBot.create(:menu_item, title: 'Example') }
+    context '#title' do
+      context 'uniqueness' do
+        context 'with a menu_item that shares the same title' do
+          let(:existing_menu_item) { FactoryBot.create(:menu_item, title: 'Example') }
 
-      context 'that shares the same restaurant' do
-        it 'is not valid' do
-          menu_item = build(:menu_item,
-                             title: 'Example',
-                             restaurant: existing_menu_item.restaurant)
+          context 'that shares the same restaurant' do
+            let(:menu_item) {
+              build(:menu_item,
+                     title: 'Example',
+                     restaurant: existing_menu_item.restaurant)
+            }
 
-          expect(menu_item).not_to be_valid
-          expect(menu_item.errors).to have_key(:title)
-        end
-      end
+            it 'is not valid' do
+              expect(menu_item).not_to be_valid
+              expect(menu_item.errors).to have_key(:title)
+            end
+          end
 
-      context 'that does not share the same restaurant' do
-        it 'is valid' do
-          menu_item = build(:menu_item,
-                             title: 'Example',
-                             restaurant: FactoryBot.create(:restaurant))
+          context 'that does not share the same restaurant' do
+            let(:menu_item) {
+              build(:menu_item,
+                     title: 'Example',
+                     restaurant: FactoryBot.create(:restaurant))
+            }
 
-          expect(menu_item).to be_valid
-          expect(menu_item.errors).to be_empty
+            it 'is valid' do
+              expect(menu_item).to be_valid
+              expect(menu_item.errors).to be_empty
+            end
+          end
         end
       end
     end
@@ -50,19 +58,60 @@ RSpec.describe MenuItem, type: :model do
     end
 
     context 'with one associated menu' do
-      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items) }
-      let(:menu2)       { FactoryBot.create(:menu, restaurant: menu_item1.restaurant) }
-      let!(:menu_item1) { menu1.menu_items.first }
+      let!(:menu)                     { FactoryBot.create(:menu) }
+      let!(:menu_item)                { FactoryBot.create(:menu_item) }
+      let!(:menu_item_representation) {
+        FactoryBot.create(:menu_item_representation,
+                           menu: menu,
+                           menu_item: menu_item)
+      }
 
-      context 'when associating with a new menu' do
+      context 'when associating with a menu' do
+        let!(:menu2) { FactoryBot.create(:menu) }
+
         it 'persists its association to the original menu' do
-          expect(menu_item1.menus.count).to eq(1)
+          expect {
+            menu2.menu_items << menu_item
+            menu2.save!
+          }.to change { menu.menu_items.count }.by(0)
+          expect(menu.menu_items.pluck(:id)).to include(menu_item.id)
+          expect(menu_item.menus.pluck(:id)).to include(menu.id)
+        end
 
-          menu2.menu_items << menu_item1
+        it 'associates correctly' do
+          expect {
+            menu2.menu_items << menu_item
+            menu2.save!
+          }.to change { menu_item.menus.count }.by(1)
+          expect(menu2.menu_items.pluck(:id)).to include(menu_item.id)
+          expect(menu_item.menus.pluck(:id)).to include(menu2.id)
+        end
+      end
 
-          expect(menu_item1.menus.count).to eq(2)
-          expect(menu1.menu_items).to include(menu_item1)
-          expect(menu2.menu_items).to include(menu_item1)
+      context 'when removing an association to a menu' do
+        let!(:menu2) { FactoryBot.create(:menu) }
+        let!(:menu_item_representation2) {
+          FactoryBot.create(:menu_item_representation,
+                             menu: menu2,
+                             menu_item: menu_item)
+        }
+
+        it 'persists its association to the original menu' do
+          expect {
+            menu2.menu_items.delete(menu_item)
+            menu2.save!
+          }.to change { menu.menu_items.count }.by(0)
+          expect(menu.menu_items.pluck(:id)).to include(menu_item.id)
+          expect(menu_item.menus.pluck(:id)).to include(menu.id)
+        end
+
+        it 'removes the association correctly' do
+          expect {
+            menu2.menu_items.delete(menu_item)
+            menu2.save!
+          }.to change { menu_item.menus.count }.by(-1)
+          expect(menu2.menu_items.pluck(:id)).not_to include(menu_item.id)
+          expect(menu_item.menus.pluck(:id)).not_to include(menu2.id)
         end
       end
     end
