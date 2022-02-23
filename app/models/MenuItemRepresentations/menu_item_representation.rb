@@ -9,6 +9,11 @@ class MenuItemRepresentation < ApplicationRecord
 
   acts_as_tree order: 'sort_order', numeric_order: true
 
+  def add_to_order(order)
+    order.menu_item_representations = (order.menu_item_representations + self_and_ancestors).uniq
+    order.save!
+  end
+
   def set_default_price_adjustment
     self.price_adjustment ||= menu_item.try(:price) || 0
   end
@@ -21,13 +26,5 @@ class MenuItemRepresentation < ApplicationRecord
     self.add_child(mir)
     save!
     mir
-  end
-
-  def print_structure(depth = 0)
-    puts "-" * depth + menu_item.title
-    return if children.empty?
-    children.each do |child|
-      child.print_structure(depth + 1)
-    end
   end
 end

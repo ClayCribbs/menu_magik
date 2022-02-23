@@ -7,6 +7,68 @@ RSpec.describe MenuItemRepresentation, type: :model do
                                                 :menu_item_id
                                               ]
 
+    describe 'add_to_order' do
+      let(:mir) { FactoryBot.create(:menu_item_representation) }
+
+      context 'with an order that is nil' do
+        it 'fails' do
+          expect {
+            mir.add_to_order(nil)
+          }.to raise_error
+        end
+      end
+
+      context 'with a valid order' do
+        let(:order) { FactoryBot.create(:order) }
+
+        context 'with a menu_item_representation that has no children or parents' do
+          it 'creates a valid and associated order_item' do
+            expect {
+              mir.add_to_order(order)
+            }.to change { OrderItem.count }.by(1)
+          end
+        end
+
+        context 'with a menu_item_representation that has an ancestry' do
+
+
+          context 'that include other children' do
+            it 'creates a valid and associated order_item for each parent' do
+              expect {
+                mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(3)
+            end
+          end
+
+          context 'that do not include other children' do
+            it 'creates a valid and associated order_item for each parent' do
+              expect {
+                mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(3)
+            end
+          end
+        end
+
+        context 'with a menu_item_representations that has no parent' do
+          context 'that also has a parent' do
+            it 'creates a valid and associated order_item' do
+              expect {
+                mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(1)
+            end
+          end
+
+          context 'that do not include other parents' do
+            it 'creates a valid and associated order_item' do
+              expect {
+                mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(1)
+            end
+          end
+        end
+      end
+    end
+
     context 'uniqueness' do
       context 'given an existing MenuItemRepresentation' do
         let!(:menu_item_representation) { FactoryBot.create(:menu_item_representation, :with_parent) }
