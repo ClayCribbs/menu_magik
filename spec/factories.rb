@@ -5,14 +5,9 @@ FactoryBot.define do
     title      { Faker::Food.ethnic_category }
 
     trait :with_menu_items do
-      transient do
-        number_of_menu_items { 1 }
-      end
-
       after(:create) do |menu, options|
-        options.number_of_menu_items.times do
-          menu.menu_items << FactoryBot.create(:menu_item)
-        end
+        menu.menu_items << FactoryBot.create(:menu_item,
+                                              restaurant: menu.restaurant)
       end
     end
   end
@@ -25,14 +20,8 @@ FactoryBot.define do
     title       { Faker::Food.dish }
 
     trait :with_menus do
-      transient do
-        number_of_menus { 1 }
-      end
-
       after(:create) do |menu_item, options|
-        options.number_of_menus.times do
-          menu_item.menus << FactoryBot.create(:menu)
-        end
+        menu_item.menus << FactoryBot.create(:menu, restaurant: menu_item.restaurant)
       end
     end
   end
@@ -41,9 +30,34 @@ FactoryBot.define do
     menu             { create(:menu) }
     menu_item        { create(:menu_item) }
 
-    trait :with_parent do
+    trait :in_a_populated_tree do
       after(:build) do |mir|
-        mir.parent = create(:menu_item_representation)
+        greatgrandparent = create(:menu_item_representation,
+                                   menu: mir.menu)
+        grandparent      = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: great_grandparent)
+        granduncle       = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: great_grandparent)
+        mir.parent       = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: grandparent)
+        uncle            = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: grandparent)
+        sibling          = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: parent)
+        child            = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: mir)
+        nephew           = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: sibling)
+        grandchild       = create(:menu_item_representation,
+                                   menu: mir.menu,
+                                   parent: child)
       end
     end
   end
@@ -52,6 +66,13 @@ FactoryBot.define do
     user       { create(:user) }
     restaurant { create(:restaurant) }
     status     { 0 }
+
+    trait :with_order_items do
+      after(:create) do |order, options|
+        order.order_items << FactoryBot.create(:order_item,
+                                                restaurant: order.restaurant)
+      end
+    end
   end
 
   factory(:order_item) do
@@ -69,21 +90,7 @@ FactoryBot.define do
     status         { 0 }
     street_address { Faker::Address.street_address }
 
-    trait :with_empty_menus do
-      transient do
-        number_of_menus { 1 }
-      end
-
-      after(:create) do |restaurant|
-        restaurant.menus << FactoryBot.create(:menu)
-      end
-    end
-
     trait :with_populated_menus do
-      transient do
-        number_of_menus { 1 }
-      end
-
       after(:create) do |restaurant|
         restaurant.menus << FactoryBot.create(:menu, :with_menu_items)
       end
@@ -99,5 +106,13 @@ FactoryBot.define do
     region         { Faker::Address.state }
     status         { 0 }
     street_address { Faker::Address.street_address }
+
+    trait :with_orders do
+      after(:create) do |user, options|
+        user.orders << FactoryBot.create(:order,
+                                          user: user,
+                                          restaurant: order.restaurant)
+      end
+    end
   end
 end

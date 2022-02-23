@@ -7,90 +7,26 @@ RSpec.describe MenuItemRepresentation, type: :model do
                                                 :menu_item_id
                                               ]
 
-    describe 'add_to_order' do
-      let(:mir) { FactoryBot.create(:menu_item_representation) }
-
-      context 'with an order that is nil' do
-        it 'fails' do
-          expect {
-            mir.add_to_order(nil)
-          }.to raise_error
-        end
-      end
-
-      context 'with a valid order' do
-        let(:order) { FactoryBot.create(:order) }
-
-        context 'with a menu_item_representation that has no children or parents' do
-          it 'creates a valid and associated order_item' do
-            expect {
-              mir.add_to_order(order)
-            }.to change { OrderItem.count }.by(1)
-          end
-        end
-
-        context 'with a menu_item_representation that has an ancestry' do
-
-
-          context 'that include other children' do
-            it 'creates a valid and associated order_item for each parent' do
-              expect {
-                mir.add_to_order(order)
-              }.to change { OrderItem.count }.by(3)
-            end
-          end
-
-          context 'that do not include other children' do
-            it 'creates a valid and associated order_item for each parent' do
-              expect {
-                mir.add_to_order(order)
-              }.to change { OrderItem.count }.by(3)
-            end
-          end
-        end
-
-        context 'with a menu_item_representations that has no parent' do
-          context 'that also has a parent' do
-            it 'creates a valid and associated order_item' do
-              expect {
-                mir.add_to_order(order)
-              }.to change { OrderItem.count }.by(1)
-            end
-          end
-
-          context 'that do not include other parents' do
-            it 'creates a valid and associated order_item' do
-              expect {
-                mir.add_to_order(order)
-              }.to change { OrderItem.count }.by(1)
-            end
-          end
-        end
-      end
-    end
-
     context 'uniqueness' do
       context 'given an existing MenuItemRepresentation' do
-        let!(:menu_item_representation) { FactoryBot.create(:menu_item_representation, :with_parent) }
+        let!(:menu_item_representation) { FactoryBot.create(:menu_item_representation) }
         let(:menu)                      { menu_item_representation.menu }
         let(:menu_item)                 { menu_item_representation.menu_item }
         let(:parent)                    { menu_item_representation.parent }
         let(:mir)                       { FactoryBot.build(:menu_item_representation,
-                                                            parent:    nil,
-                                                            menu:      nil,
-                                                            menu_item: nil) }
+                                                            parent:    parent,
+                                                            menu:      menu,
+                                                            menu_item: menu_item) }
 
         context 'that shares no attributes' do
           it 'is valid' do
-            expect(FactoryBot.build(:menu_item_representation, :with_parent)).to be_valid
+            expect(FactoryBot.build(:menu_item_representation)).to be_valid
           end
         end
 
         context 'that shares the same menu and parent' do
           before do
             mir.menu_item = FactoryBot.create(:menu_item)
-            mir.menu      = menu
-            mir.parent    = parent
           end
 
           it 'is valid' do
@@ -100,9 +36,7 @@ RSpec.describe MenuItemRepresentation, type: :model do
 
         context 'that shares the same menu_item and parent' do
           before do
-            mir.menu      = FactoryBot.create(:menu)
-            mir.menu_item = menu_item
-            mir.parent    = parent
+            mir.menu = FactoryBot.create(:menu)
           end
 
           it 'is valid' do
@@ -112,9 +46,7 @@ RSpec.describe MenuItemRepresentation, type: :model do
 
         context 'that shares the same menu and menu_item' do
           before do
-            mir.parent    = FactoryBot.create(:menu_item_representation)
-            mir.menu      = menu
-            mir.menu_item = menu_item
+            mir.parent = FactoryBot.create(:menu_item_representation)
           end
 
           it 'is valid' do
@@ -123,12 +55,6 @@ RSpec.describe MenuItemRepresentation, type: :model do
         end
 
         context 'that shares the same menu and menu_item and parent' do
-          before do
-            mir.menu      = menu
-            mir.menu_item = menu_item
-            mir.parent    = parent
-          end
-
           it 'is not valid' do
             expect(mir).not_to be_valid
           end
@@ -143,6 +69,165 @@ RSpec.describe MenuItemRepresentation, type: :model do
       [:menu_item,   :belongs_to],
     ].each do |model, association|
       include_examples 'associates_with', model, association
+    end
+  end
+
+  describe '#add_to_order' do
+    let(:mir) { FactoryBot.create(:menu_item_representation) }
+
+    context 'with an order that is nil' do
+      it 'fails' do
+        expect {
+          mir.add_to_order(nil)
+        }.to raise_error(NoMethodError)
+      end
+    end
+
+    context 'with a valid order' do
+      let(:order) { FactoryBot.create(:order) }
+
+      context 'with no children or parents' do
+        it 'creates a valid and associated order_item' do
+          expect(mir.parent).to eq(nil)
+          expect(mir.children).to be_empty
+          expect {
+            mir.add_to_order(order)
+          }.to change { OrderItem.count }.by(1)
+        end
+      end
+
+      context 'with a populated family tree' do
+        include_context 'with a namespaced menu_item_representation tree'
+
+        context 'where no ancestors share the order' do
+          context 'where children share the order' do
+            before do
+              child.add_to_order(order)
+            end
+
+            it 'should already exist in the order' do
+              expect(order.menu_item_representations).to include(established_mir)
+              expect {
+                established_mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(0)
+            end
+          end
+
+          context 'where no children share the order' do
+            it 'creates a valid and associated order_item for each ancestor' do
+              expected_count = established_mir.self_and_ancestors.count
+
+              expect {
+                established_mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(expected_count)
+            end
+          end
+        end
+
+        context 'where some ancestors share the order' do
+          before do
+            grandparent.add_to_order(order)
+          end
+
+          context 'where children share the order' do
+            before do
+              child.add_to_order(order)
+            end
+
+            it 'should already exist in the order' do
+              expect(order.menu_item_representations).to include(established_mir)
+              expect {
+                established_mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(0)
+            end
+          end
+
+          context 'where no children share the order' do
+            it 'creates a valid and associated order_item for ancestors without one' do
+              existing_order_items = order.order_items
+                                      .pluck(:menu_item_representation_id)
+              expected_count       = established_mir.self_and_ancestors
+                                      .where('id NOT IN (?)', existing_order_items)
+                                      .count
+
+              expect {
+                established_mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(expected_count)
+            end
+          end
+        end
+
+        context 'where all ancestors share the order' do
+          before do
+            parent.add_to_order(order)
+          end
+
+          context 'where children share the order' do
+            before do
+              child.add_to_order(order)
+            end
+
+            it 'should already exist in the order' do
+              expect(order.menu_item_representations).to include(established_mir)
+              expect {
+                established_mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(0)
+            end
+          end
+
+          context 'where no children share the order' do
+            it 'creates a valid and associated order_item' do
+              expect(mir.parent).to eq(nil)
+              expect(mir.children).to be_empty
+              expect {
+                established_mir.add_to_order(order)
+              }.to change { OrderItem.count }.by(1)
+            end
+          end
+        end
+
+        context 'where a granduncle shares the order' do
+          before do
+            granduncle.add_to_order(order)
+          end
+
+          it 'creates a valid and associated order_item for each ancestor without one' do
+            expected_count = (established_mir.self_and_ancestors - granduncle.self_and_ancestors).count
+
+            expect {
+              established_mir.add_to_order(order)
+            }.to change { OrderItem.count }.by(expected_count)
+          end
+        end
+
+        context 'where a nephew shares the order' do
+          before do
+            nephew.add_to_order(order)
+          end
+
+          it 'creates a valid and associated order_item for each ancestor without one' do
+            expected_count = (established_mir.self_and_ancestors - nephew.self_and_ancestors).count
+
+            expect {
+              established_mir.add_to_order(order)
+            }.to change { OrderItem.count }.by(expected_count)
+          end
+        end
+
+        context 'where another order shares the same representation' do
+          before do
+            established_mir.add_to_order(FactoryBot.create(:order))
+          end
+
+          it 'creates a valid and associated order_item for ancestors without one' do
+            expected_count = established_mir.self_and_ancestors.count
+
+            expect {
+              established_mir.add_to_order(order)
+            }.to change { OrderItem.count }.by(expected_count)
+          end
+        end
+      end
     end
   end
 

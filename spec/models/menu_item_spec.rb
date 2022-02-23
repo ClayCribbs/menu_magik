@@ -50,7 +50,7 @@ RSpec.describe MenuItem, type: :model do
     end
 
     context 'with one associated menu' do
-      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items, number_of_menu_items: 3) }
+      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items) }
       let(:menu2)       { FactoryBot.create(:menu, restaurant: menu_item1.restaurant) }
       let!(:menu_item1) { menu1.menu_items.first }
 
@@ -68,7 +68,7 @@ RSpec.describe MenuItem, type: :model do
     end
 
     context 'with multiple associated menus' do
-      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items, number_of_menu_items: 3) }
+      let(:menu1)       { FactoryBot.create(:menu, :with_menu_items) }
       let(:menu2)       { FactoryBot.create(:menu, restaurant: menu_item1.restaurant) }
       let!(:menu_item1) { menu1.menu_items.first }
 
