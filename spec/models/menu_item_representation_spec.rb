@@ -6,14 +6,6 @@ RSpec.describe MenuItemRepresentation, type: :model do
                                                 :menu_id,
                                                 :menu_item_id
                                               ]
-    context 'associations' do
-      [  #model       #association
-        [:menu,        :belongs_to],
-        [:menu_item,   :belongs_to],
-      ].each do |model, association|
-        include_examples 'associates_with', model, association
-      end
-    end
 
     context 'uniqueness' do
       describe '#menu_item_id' do
@@ -72,6 +64,15 @@ RSpec.describe MenuItemRepresentation, type: :model do
           end
         end
       end
+    end
+  end
+
+  context 'associations' do
+    [  #model       #association
+      [:menu,        :belongs_to],
+      [:menu_item,   :belongs_to],
+    ].each do |model, association|
+      include_examples 'associates_with', model, association
     end
   end
 
@@ -137,7 +138,7 @@ RSpec.describe MenuItemRepresentation, type: :model do
               child.add_to_order(order)
             end
 
-            it 'does not create an order_itemr' do
+            it 'does not create an order_item' do
               expect(order.menu_item_representations).to include(established_mir)
               expect {
                 established_mir.add_to_order(order)

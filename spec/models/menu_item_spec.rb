@@ -9,15 +9,6 @@ RSpec.describe MenuItem, type: :model do
                                                 :title,
                                               ]
 
-    context 'associations' do
-      [  #model       #association
-        [:restaurant, :belongs_to],
-        [:menus,      :has_many],
-      ].each do |model, association|
-        include_examples 'associates_with', model, association
-      end
-    end
-
     context 'uniqueness' do
       context '#title' do
         context 'with a menu_item that does not share the same title' do
@@ -80,6 +71,15 @@ RSpec.describe MenuItem, type: :model do
           end
         end
       end
+    end
+  end
+
+  context 'associations' do
+    [  #model       #association
+      [:restaurant, :belongs_to],
+      [:menus,      :has_many],
+    ].each do |model, association|
+      include_examples 'associates_with', model, association
     end
   end
 

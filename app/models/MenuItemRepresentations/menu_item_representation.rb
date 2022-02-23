@@ -10,8 +10,7 @@ class MenuItemRepresentation < ApplicationRecord
   acts_as_tree order: 'sort_order', numeric_order: true
 
   def add_to_order(order)
-    order.menu_item_representations = (order.menu_item_representations + self_and_ancestors).uniq
-    order.save!
+    order.create_order_items_from_menu_item_representation(self)
   end
 
   def set_default_price_adjustment
