@@ -1,48 +1,46 @@
 class Order < ApplicationRecord
-  belongs_to :user
   belongs_to :restaurant
-  has_many :order_items
-  has_many :menu_item_representations, through: :order_items
+  belongs_to :user
+  has_many :representations, as: :presenter
+  has_many :order_items, through: :representations
 
   validates_presence_of :status, :restaurant_id, :user_id
 
-
-  def create_order_items_from_menu_item_representation(mir)
-    self.menu_item_representations = (self.menu_item_representations + mir.self_and_ancestors).uniq
+  def subtotals
+    representations.roots.map(&:subtotal_for)
   end
 
-  def subtotal
-    menu_item_representations.roots.map(&:subtotal_for)
+  def total
+    subtotals.sum
   end
 
-  def subtotal_for(item)
-    item.self_and_descendants
-        .where(id: menu_item_representations)
-        .sum(:price_adjustment)
-        .to_s
+  def subtotal_for(representation)
+    order_items.where(id: representation.self_and_descendants.pluck(:id))
+               .sum(:price)
+               .to_s
   end
 
 #### Methods for debugging
 
   def print_structure
-    menu_item_representations.roots.each do |root_item|
-      print_item_summary(root_item)
+    representations.roots.each do |root_representation|
+      print_item_summary(root_representation)
     end
     nil
   end
 
-  def print_item_summary(root_item)
-    print_item_total(root_item)
-    print_tree_breakdown(root_item)
+  def print_item_summary(root_representation)
+    print_item_total(root_representation)
+    print_tree_breakdown(root_representation)
   end
 
-  def print_item_total(root_item)
-    puts "#{root_item.menu_item.title} -- Total: #{total_tree_adjustment(root_item)}"
+  def print_item_total(root_representation)
+    puts "#{root_representation.menu_item.title} -- Total: #{subtotal_for(root_representation)}"
   end
 
-  def print_tree_breakdown(item, depth = 0)
-    puts "-" * depth + item.menu_item.title
-    children_to_create = item.children.where(id: menu_item_representations.pluck(:id)).all
+  def print_tree_breakdown(representation, depth = 0)
+    puts "-" * depth + representation.menu_item.title
+    children_to_create = representation.children.where(id: representations.pluck(:id)).all
     return if children_to_create.empty?
     children_to_create.each do |child_to_create|
       print_tree_breakdown(child_to_create, depth + 1)

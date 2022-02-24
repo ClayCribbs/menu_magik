@@ -10,18 +10,18 @@ RSpec.describe Order, type: :model do
 
   context 'associations' do
     [  #model        #association
-      [:order_items, :has_many],
+      [:menu_items,  :has_many],
       [:user,        :belongs_to],
     ].each do |model, association|
       include_examples 'associates_with', model, association
     end
   end
 
-  describe '#create_order_items_from_menu_item_representation' do
+  describe '#add_item_to_order' do
     let(:order) { FactoryBot.create(:order) }
-    let(:mir) { FactoryBot.create(:menu_item_representation) }
+    let(:representation) { FactoryBot.create(:menu_item_representation) }
 
-    context 'with an menu_item_representation that is nil' do
+    context 'it'
       it 'fails' do
         expect {
           order.create_order_items_from_menu_item_representation(nil)
@@ -32,10 +32,10 @@ RSpec.describe Order, type: :model do
     context 'with a valid menu_item_representation' do
       context 'with no children or parents' do
         it 'creates an associated order_item' do
-          expect(mir.parent).to eq(nil)
-          expect(mir.children).to be_empty
+          expect(representation.parent).to eq(nil)
+          expect(representation.children).to be_empty
           expect {
-            order.create_order_items_from_menu_item_representation(mir)
+            order.create_order_items_from_menu_item_representation(representation)
           }.to change { OrderItem.count }.by(1)
         end
       end
@@ -50,19 +50,19 @@ RSpec.describe Order, type: :model do
             end
 
             it 'does not create an order_item' do
-              expect(order.menu_item_representations).to include(established_mir)
+              expect(order.menu_item_representations).to include(established_representation)
               expect {
-                order.create_order_items_from_menu_item_representation(established_mir)
+                order.create_order_items_from_menu_item_representation(established_representation)
               }.to change { OrderItem.count }.by(0)
             end
           end
 
           context 'where no children share the order' do
             it 'creates an associated order_item for each ancestor that has none' do
-              expected_count = established_mir.self_and_ancestors.count
+              expected_count = established_representation.self_and_ancestors.count
 
               expect {
-                order.create_order_items_from_menu_item_representation(established_mir)
+                order.create_order_items_from_menu_item_representation(established_representation)
               }.to change { OrderItem.count }.by(expected_count)
             end
           end
@@ -79,9 +79,9 @@ RSpec.describe Order, type: :model do
             end
 
             it 'does not create an order_item' do
-              expect(order.menu_item_representations).to include(established_mir)
+              expect(order.menu_item_representations).to include(established_representation)
               expect {
-                order.create_order_items_from_menu_item_representation(established_mir)
+                order.create_order_items_from_menu_item_representation(established_representation)
               }.to change { OrderItem.count }.by(0)
             end
           end
@@ -90,12 +90,12 @@ RSpec.describe Order, type: :model do
             it 'creates an associated order_item for each ancestor that has none' do
               existing_order_items = order.order_items
                                       .pluck(:menu_item_representation_id)
-              expected_count       = established_mir.self_and_ancestors
+              expected_count       = established_representation.self_and_ancestors
                                       .where('id NOT IN (?)', existing_order_items)
                                       .count
 
               expect {
-                order.create_order_items_from_menu_item_representation(established_mir)
+                order.create_order_items_from_menu_item_representation(established_representation)
               }.to change { OrderItem.count }.by(expected_count)
             end
           end
@@ -112,19 +112,19 @@ RSpec.describe Order, type: :model do
             end
 
             it 'does not create an order_item' do
-              expect(order.menu_item_representations).to include(established_mir)
+              expect(order.menu_item_representations).to include(established_representation)
               expect {
-                order.create_order_items_from_menu_item_representation(established_mir)
+                order.create_order_items_from_menu_item_representation(established_representation)
               }.to change { OrderItem.count }.by(0)
             end
           end
 
           context 'where no children share the order' do
             it 'creates an associated order_item' do
-              expect(mir.parent).to eq(nil)
-              expect(mir.children).to be_empty
+              expect(representation.parent).to eq(nil)
+              expect(representation.children).to be_empty
               expect {
-                order.create_order_items_from_menu_item_representation(established_mir)
+                order.create_order_items_from_menu_item_representation(established_representation)
               }.to change { OrderItem.count }.by(1)
             end
           end
@@ -136,10 +136,10 @@ RSpec.describe Order, type: :model do
           end
 
           it 'creates an associated order_item for each ancestor that has none' do
-            expected_count = (established_mir.self_and_ancestors - granduncle.self_and_ancestors).count
+            expected_count = (established_representation.self_and_ancestors - granduncle.self_and_ancestors).count
 
             expect {
-              order.create_order_items_from_menu_item_representation(established_mir)
+              order.create_order_items_from_menu_item_representation(established_representation)
             }.to change { OrderItem.count }.by(expected_count)
           end
         end
@@ -150,24 +150,24 @@ RSpec.describe Order, type: :model do
           end
 
           it 'creates an associated order_item for each ancestor that has none' do
-            expected_count = (established_mir.self_and_ancestors - nephew.self_and_ancestors).count
+            expected_count = (established_representation.self_and_ancestors - nephew.self_and_ancestors).count
 
             expect {
-              order.create_order_items_from_menu_item_representation(established_mir)
+              order.create_order_items_from_menu_item_representation(established_representation)
             }.to change { OrderItem.count }.by(expected_count)
           end
         end
 
         context 'where another order shares the same representation' do
           before do
-            FactoryBot.create(:order).create_order_items_from_menu_item_representation(established_mir)
+            FactoryBot.create(:order).create_order_items_from_menu_item_representation(established_representation)
           end
 
           it 'creates an associated order_item for each ancestor that has none' do
-            expected_count = established_mir.self_and_ancestors.count
+            expected_count = established_representation.self_and_ancestors.count
 
             expect {
-              order.create_order_items_from_menu_item_representation(established_mir)
+              order.create_order_items_from_menu_item_representation(established_representation)
             }.to change { OrderItem.count }.by(expected_count)
           end
         end

@@ -235,12 +235,12 @@ RSpec.describe MenuItemRepresentation, type: :model do
     end
   end
 
-  describe '#set_default_price_adjustment' do
+  describe '#set_default_price' do
     let(:mir) { FactoryBot.create(:menu_item_representation) }
 
-    context 'when price_adjustment is not provided' do
+    context 'when price is not provided' do
       before do
-        mir.price_adjustment = nil
+        mir.price = nil
       end
 
       context 'when menu_item.price is populated' do
@@ -248,9 +248,9 @@ RSpec.describe MenuItemRepresentation, type: :model do
           mir.menu_item.price = 12.00
         end
 
-        it 'assigns menu_item.price to price_adjustment' do
+        it 'assigns menu_item.price to price' do
           expect(mir).to be_valid
-          expect(mir.price_adjustment.to_s).to eq('12.0')
+          expect(mir.price.to_s).to eq('12.0')
         end
       end
 
@@ -259,22 +259,22 @@ RSpec.describe MenuItemRepresentation, type: :model do
           allow_any_instance_of(MenuItem).to receive(:price).and_return(nil)
         end
 
-        it 'assigns 0 to price_adjustment' do
+        it 'assigns 0 to price' do
           expect(mir).to be_valid
-          expect(mir.price_adjustment.to_s).to eq('0.0')
+          expect(mir.price.to_s).to eq('0.0')
         end
       end
     end
 
-    context 'when a price_adjustment is provided' do
+    context 'when a price is provided' do
       before do
-        mir.price_adjustment = 6
+        mir.price = 6
       end
 
       context 'when menu_item.price is populated' do
-        it 'assigns the provided value to price_adjustment' do
+        it 'assigns the provided value to price' do
           expect(mir).to be_valid
-          expect(mir.price_adjustment.to_s).to eq('6.0')
+          expect(mir.price.to_s).to eq('6.0')
         end
       end
 
@@ -283,9 +283,9 @@ RSpec.describe MenuItemRepresentation, type: :model do
           allow_any_instance_of(MenuItem).to receive(:price).and_return(nil)
         end
 
-        it 'assigns the provided value to price_adjustment' do
+        it 'assigns the provided value to price' do
           expect(mir).to be_valid
-          expect(mir.price_adjustment.to_s).to eq('6.0')
+          expect(mir.price.to_s).to eq('6.0')
         end
       end
     end

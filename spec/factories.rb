@@ -28,37 +28,42 @@ FactoryBot.define do
     end
   end
 
+  factory(:representation) do
+    presenter   { create(:menu) }
+    presentable { create(:menu_item) }
+  end
+
   factory(:menu_item_representation) do
-    menu             { create(:menu) }
-    menu_item        { create(:menu_item) }
+    menu      { create(:menu) }
+    menu_item { create(:menu_item) }
 
     trait :in_a_populated_tree do
-      after(:build) do |mir|
-        greatgrandparent = create(:menu_item_representation,
-                                   menu: mir.menu)
-        grandparent      = create(:menu_item_representation,
-                                   menu: mir.menu,
+      after(:build) do |rep|
+        greatgrandparent = create(:representation,
+                                   menu: menu)
+        grandparent      = create(:representation,
+                                   menu: menu,
                                    parent: great_grandparent)
-        granduncle       = create(:menu_item_representation,
-                                   menu: mir.menu,
+        granduncle       = create(:representation,
+                                   menu: menu,
                                    parent: great_grandparent)
-        mir.parent       = create(:menu_item_representation,
-                                   menu: mir.menu,
+        rep.parent       = create(:representation,
+                                   menu: menu,
                                    parent: grandparent)
-        uncle            = create(:menu_item_representation,
-                                   menu: mir.menu,
+        uncle            = create(:representation,
+                                   menu: menu,
                                    parent: grandparent)
-        sibling          = create(:menu_item_representation,
-                                   menu: mir.menu,
+        sibling          = create(:representation,
+                                   menu: menu,
                                    parent: parent)
-        child            = create(:menu_item_representation,
-                                   menu: mir.menu,
-                                   parent: mir)
-        nephew           = create(:menu_item_representation,
-                                   menu: mir.menu,
+        child            = create(:representation,
+                                   menu: menu,
+                                   parent: rep)
+        nephew           = create(:representation,
+                                   menu: menu,
                                    parent: sibling)
-        grandchild       = create(:menu_item_representation,
-                                   menu: mir.menu,
+        grandchild       = create(:representation,
+                                   menu: menu,
                                    parent: child)
       end
     end
@@ -71,15 +76,12 @@ FactoryBot.define do
 
     trait :with_order_items do
       after(:create) do |order, options|
-        order.order_items << FactoryBot.create(:order_item,
-                                                restaurant: order.restaurant)
+        2.times do
+          order.order_items << FactoryBot.create(:menu_item,
+                                                  restaurant: menu.restaurant)
+        end
       end
     end
-  end
-
-  factory(:order_item) do
-    order                    { create(:order) }
-    menu_item_representation { create(:menu_item_representation) }
   end
 
   factory(:restaurant) do

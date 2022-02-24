@@ -14,28 +14,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_21_234618) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "menu_item_representation_hierarchies", id: false, force: :cascade do |t|
-    t.integer "ancestor_id", null: false
-    t.integer "descendant_id", null: false
-    t.integer "generations", null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "menu_item_representation_anc_desc_idx", unique: true
-    t.index ["descendant_id"], name: "menu_item_representation_desc_idx"
-  end
-
-  create_table "menu_item_representations", force: :cascade do |t|
-    t.bigint "menu_item_id", null: false
-    t.bigint "menu_id", null: false
-    t.integer "parent_id"
-    t.decimal "price_adjustment", precision: 8, scale: 2
-    t.integer "sort_order", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["menu_id"], name: "index_menu_item_representations_on_menu_id"
-    t.index ["menu_item_id"], name: "index_menu_item_representations_on_menu_item_id"
-    t.index ["parent_id", "menu_item_id", "menu_id"], name: "menu_item_representations_pid_miid_mid", unique: true
-    t.index ["parent_id"], name: "index_menu_item_representations_on_parent_id"
-  end
-
   create_table "menu_items", force: :cascade do |t|
     t.text "description"
     t.decimal "price", precision: 8, scale: 2, default: "0.0", null: false
@@ -57,15 +35,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_21_234618) do
     t.index ["restaurant_id"], name: "index_menus_on_restaurant_id"
   end
 
-  create_table "order_items", force: :cascade do |t|
-    t.bigint "menu_item_representation_id", null: false
-    t.bigint "order_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["menu_item_representation_id"], name: "index_order_items_on_menu_item_representation_id"
-    t.index ["order_id"], name: "index_order_items_on_order_id"
-  end
-
   create_table "orders", force: :cascade do |t|
     t.bigint "restaurant_id", null: false
     t.bigint "user_id", null: false
@@ -74,6 +43,31 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_21_234618) do
     t.datetime "updated_at", null: false
     t.index ["restaurant_id"], name: "index_orders_on_restaurant_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
+  end
+
+  create_table "representation_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id", null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "representation_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "representation_desc_idx"
+  end
+
+  create_table "representations", force: :cascade do |t|
+    t.bigint "menu_item_id", null: false
+    t.bigint "presenter_id", null: false
+    t.integer "parent_id"
+    t.string "presenter_type", null: false
+    t.decimal "price", precision: 8, scale: 2
+    t.integer "sort_order", default: 0, null: false
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_item_id", "presenter_id", "parent_id", "type"], name: "representations_rep_men_par_typ", unique: true
+    t.index ["menu_item_id"], name: "index_representations_on_menu_item_id"
+    t.index ["parent_id"], name: "index_representations_on_parent_id"
+    t.index ["presenter_id"], name: "index_representations_on_presenter_id"
+    t.index ["presenter_type"], name: "index_representations_on_presenter_type"
   end
 
   create_table "restaurants", force: :cascade do |t|
@@ -104,8 +98,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_21_234618) do
 
   add_foreign_key "menu_items", "restaurants"
   add_foreign_key "menus", "restaurants"
-  add_foreign_key "order_items", "menu_item_representations"
-  add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "restaurants"
   add_foreign_key "orders", "users"
 end
