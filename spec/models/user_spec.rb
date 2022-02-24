@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Restaurant, type: :model do
+RSpec.describe User, type: :model do
   describe '#validate' do
     include_examples 'validates presence of', [ #required field
                                                 :city,
@@ -15,9 +15,8 @@ RSpec.describe Restaurant, type: :model do
   end
 
   context 'associations' do
-    [  #model       #association
-      [:menus,      :has_many],
-      [:menu_items, :has_many],
+    [  #model   #association
+      [:orders, :has_many],
     ].each do |model, association|
       include_examples 'associates_with', model, association
     end
