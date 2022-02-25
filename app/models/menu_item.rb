@@ -1,8 +1,8 @@
 class MenuItem < ApplicationRecord
   belongs_to :restaurant
-  has_many :menu_assignments, dependent: :destroy
-  has_many :menus, through: :menu_assignments
+  has_many :menu_item_representations
+  has_many :menus, through: :menu_item_representations
 
-  validates_presence_of :restaurant_id, :title, :price, :status
+  validates_presence_of :price, :restaurant_id, :status, :title
   validates :title, uniqueness: { scope: :restaurant_id }
 end

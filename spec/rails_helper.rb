@@ -6,6 +6,8 @@ require_relative '../config/environment'
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 
+Dir["./spec/support/**/*.rb"].sort.each { |f| require f  }
+
 # Required for rspec
 require_relative 'support/factory_bot'
 require_relative 'support/chrome'
