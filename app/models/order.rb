@@ -1,14 +1,14 @@
 class Order < ApplicationRecord
   belongs_to :user
   belongs_to :restaurant
-  has_many :order_items
-  has_many :menu_item_representations, through: :order_items
+  has_many :order_items, dependent: :destroy
+  has_many :menu_item_representations, through: :order_items, source: :menu_item_representation
 
   validates_presence_of :status, :restaurant_id, :user_id
 
-
   def create_order_items_from_menu_item_representation(mir)
     self.menu_item_representations = (self.menu_item_representations + mir.self_and_ancestors).uniq
+    self.save!
   end
 
   def subtotal
@@ -37,7 +37,7 @@ class Order < ApplicationRecord
   end
 
   def print_item_total(root_item)
-    puts "#{root_item.menu_item.title} -- Total: #{total_tree_adjustment(root_item)}"
+    puts "#{root_item.menu_item.title} -- Total: #{subtotal_for(root_item)}"
   end
 
   def print_tree_breakdown(item, depth = 0)

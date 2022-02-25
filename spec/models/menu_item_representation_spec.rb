@@ -235,6 +235,67 @@ RSpec.describe MenuItemRepresentation, type: :model do
     end
   end
 
+  describe '#create_child_from_menu_item' do
+    let(:salad)           { FactoryBot.create(:menu_item, title: 'Salad') }
+    let(:ceasar_dressing) { FactoryBot.create(:menu_item, title: 'Ceasar Dressing') }
+    let(:ranch_dressing)  { FactoryBot.create(:menu_item, title: 'Ranch Dressing') }
+    let(:dinner_menu)     { FactoryBot.create(:menu, title: 'Dinner Menu') }
+    let!(:mir)             { MenuItemRepresentation.create(menu: dinner_menu, menu_item: salad) }
+
+    it 'creates a new menu_item_representation' do
+      expect {
+        mir.create_child_from_menu_item(ceasar_dressing)
+      }.to change { MenuItemRepresentation.count }.by(1)
+    end
+
+    it 'adds the new menu_item_representation to children' do
+      mir.create_child_from_menu_item(ceasar_dressing)
+      expect(mir.descendants.count).to eq(1)
+      expect {
+        mir.create_child_from_menu_item(ranch_dressing)
+      }.to change { mir.children.count }.by(1)
+      expect(mir.descendants.count).to eq(2)
+    end
+  end
+
+  describe '#copy_self_and_descendents_to' do
+    let(:salad)            { FactoryBot.create(:menu_item, title: 'Salad') }
+    let(:ceasar_dressing)  { FactoryBot.create(:menu_item, title: 'Ceasar Dressing') }
+    let(:ranch_dressing)   { FactoryBot.create(:menu_item, title: 'Ranch Dressing') }
+    let(:italian_dressing) { FactoryBot.create(:menu_item, title: 'Italian Dressing') }
+    let(:roast_beef)       { FactoryBot.create(:menu_item, title: 'Roast Beef') }
+    let(:dinner_menu)      { FactoryBot.create(:menu, title: 'Dinner Menu') }
+    let!(:mir)              { MenuItemRepresentation.create(menu: dinner_menu, menu_item: salad) }
+    let!(:mir2)             { MenuItemRepresentation.create(menu: dinner_menu, menu_item: roast_beef) }
+
+    before do
+      mir.create_child_from_menu_item(ceasar_dressing)
+      mir.create_child_from_menu_item(ranch_dressing)
+      mir.create_child_from_menu_item(italian_dressing)
+    end
+
+    it 'creates a new menu_item_representation for itself and each child' do
+      expect {
+        mir.copy_self_and_descendents_to(mir2)
+      }.to change { MenuItemRepresentation.count }.by(4)
+    end
+
+    it 'duplicates the correct association tree' do
+      expected_granchild_ids = [
+        ceasar_dressing.id,
+        ranch_dressing.id,
+        italian_dressing.id
+      ]
+
+      expect(mir2.children.pluck(:menu_item_id)).to eq([])
+
+      mir.copy_self_and_descendents_to(mir2)
+
+      expect(mir2.children.pluck(:menu_item_id)).to eq([salad.id])
+      expect(mir2.children.first.children.pluck(:menu_item_id)).to match_array(expected_granchild_ids)
+    end
+  end
+
   describe '#set_default_price_adjustment' do
     let(:mir) { FactoryBot.create(:menu_item_representation) }
 
