@@ -1,14 +1,15 @@
 class Order < ApplicationRecord
   belongs_to :user
   belongs_to :restaurant
-  has_many :order_items
-  has_many :menu_item_representations, through: :order_items
+  has_many :order_items, dependent: :destroy
+  has_many :menu_item_representations, through: :order_items, source: :menu_item_representation
+  has_many :menu_items, through: :menu_item_representations, source: :menu_item
 
   validates_presence_of :status, :restaurant_id, :user_id
 
-
   def create_order_items_from_menu_item_representation(mir)
     self.menu_item_representations = (self.menu_item_representations + mir.self_and_ancestors).uniq
+    self.save!
   end
 
   def subtotal
