@@ -3,7 +3,6 @@ class Order < ApplicationRecord
   belongs_to :restaurant
   has_many :order_items, dependent: :destroy
   has_many :menu_item_representations, through: :order_items, source: :menu_item_representation
-  has_many :menu_items, through: :menu_item_representations, source: :menu_item
 
   validates_presence_of :status, :restaurant_id, :user_id
 
