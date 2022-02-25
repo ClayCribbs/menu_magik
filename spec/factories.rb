@@ -15,11 +15,11 @@ FactoryBot.define do
   end
 
   factory(:menu_item) do
-    restaurant  { create(:restaurant) }
-    description { Faker::Food.description }
-    price       { Faker::Number.between(from: 0.0, to: 30.0).round(2) }
-    status      { 0 }
-    title       { Faker::Food.dish }
+    restaurant       { create(:restaurant) }
+    description      { Faker::Food.description }
+    price            { Faker::Number.between(from: 0.0, to: 30.0).round(2) }
+    status           { 0 }
+    sequence(:title) { |n| Faker::Food.dish + " #{n}" }
 
     trait :with_menu do
       after(:create) do |menu_item, options|
