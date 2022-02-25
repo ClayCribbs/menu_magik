@@ -38,7 +38,7 @@ class Order < ApplicationRecord
   end
 
   def print_item_total(root_item)
-    puts "#{root_item.menu_item.title} -- Total: #{total_tree_adjustment(root_item)}"
+    puts "#{root_item.menu_item.title} -- Total: #{subtotal_for(root_item)}"
   end
 
   def print_tree_breakdown(item, depth = 0)
