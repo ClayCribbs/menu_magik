@@ -11,33 +11,14 @@ class Order < ApplicationRecord
     self.save!
   end
 
-  def subtotal
-    menu_item_representations.roots.map(&:subtotal_for)
-  end
-
-  def subtotal_for(item)
-    item.self_and_descendants
-        .where(id: menu_item_representations)
-        .sum(:price_adjustment)
-        .to_s
-  end
-
-#### Methods for debugging
-
   def print_structure
+    puts '*' * 50
     menu_item_representations.roots.each do |root_item|
-      print_item_summary(root_item)
+      puts '-' * 50
+      print_tree_breakdown(root_item)
+      puts '-' * 50
     end
-    nil
-  end
-
-  def print_item_summary(root_item)
-    print_item_total(root_item)
-    print_tree_breakdown(root_item)
-  end
-
-  def print_item_total(root_item)
-    puts "#{root_item.menu_item.title} -- Total: #{subtotal_for(root_item)}"
+    puts '*' * 50
   end
 
   def print_tree_breakdown(item, depth = 0)
