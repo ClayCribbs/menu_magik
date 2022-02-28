@@ -9,12 +9,16 @@ Bundler.require(*Rails.groups)
 module MenuMagik
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 6.0
+    config.autoloader = :classic
 
+    config.cache_classes = false
+    config.eager_load = false
     # Autoload paths for more flexible folder structure
     config.autoload_paths += Dir[Rails.root.join('app', 'jobs', '**/')]
     config.autoload_paths += Dir[Rails.root.join('app', 'models', '**/')]
     config.autoload_paths += Dir[Rails.root.join('app', 'mailers', '**/')]
+    config.autoload_paths += Dir[Rails.root.join('lib', 'prediction_engine', '**/')]
 
     # Configuration for the application, engines, and railties goes here.
     #
